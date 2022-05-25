@@ -1,37 +1,50 @@
 package com.keolaiseri.androidexercise_fetchrewards.api
 
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import android.util.Log
+import com.google.gson.GsonBuilder
+import retrofit2.Call
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Query
 
 
-private const val BASE_URL = "https://fetch-hiring.s3.amazonaws.com/hiring.json"
+//Our Base URL where the app will retrieve the JSON data
+private const val BASE_URL = "https://fetch-hiring.s3.amazonaws.com/"
 
 
-enum class ListFilter(val value: String)
+/**
+ * A public interface that exposes the [getListItems] method
+ */
+interface ListApiService {
 
 
 
 
-interface ListApiService{
+    /* The @GET annotation indicates that the "hiring.json" endpoint will be requested with the GET
+    * HTTP method
+    */
+    @GET("hiring.json")
+    fun getListItems() : Call<MutableList<ListItem>>
 
-    @GET("items")
-    suspend fun getProperties(@Query("filter") type: String): List<ListItem>
+    companion object{
+        operator fun invoke(): ListApiService{
+
+            val gson = GsonBuilder()
+                .setPrettyPrinting()
+                .create()
+
+            val callback = Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build()
+                .create(ListApiService::class.java)
+
+
+            /**
+             * Use the Retrofit builder to build a retrofit object using a Gson converter.
+             */
+            return callback
+        }
+    }
 }
 
-private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
-    .build()
-
-private val retrofit = Retrofit.Builder()
-    .addConverterFactory(MoshiConverterFactory.create(moshi))
-    .baseUrl(BASE_URL)
-    .build()
-
-
-object MarsApi {
-    val retrofitService : ListApiService by lazy { retrofit.create(ListApiService::class.java) }
-}
