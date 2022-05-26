@@ -17,9 +17,6 @@ private const val BASE_URL = "https://fetch-hiring.s3.amazonaws.com/"
  */
 interface ListApiService {
 
-
-
-
     /* The @GET annotation indicates that the "hiring.json" endpoint will be requested with the GET
     * HTTP method
     */
